@@ -41,11 +41,18 @@ lambda = do
   e <- expr
   return (Lam x t e)
 
+derive' :: Expr -> Expr
+derive' (Var name) = Var ("d" ++ name)
+derive' (Add x y) = Add (Add x y) (Add (derive' x) (derive' y))
+derive' (App x y) = App (App (derive' x) y) (derive' y)
+derive' (Lam n t e) = (Lam n t (Lam ("d" ++ n) t (derive' e))) -- todo: derive type t
+derive' x = x
+
 derive :: Parser Expr
 derive = do
   reservedOp "derive"
   e <- expr
-  return (Derive e)
+  return (derive' e)
 
 bool :: Parser Expr
 bool =  (reserved "True" >> return (Lit (LBool True)))

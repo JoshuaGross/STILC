@@ -37,7 +37,11 @@ STILC> (\x : Int . \y : Int . + x y)
 
 STILC> derive (\x : Int . \y : Int . + x y)
 <<closure (\x . \ (dx : Int) -> (\ (y : Int) -> (\ (dy : Int) -> (+ (+ x y) (+ dx dy)))))>>
+
+STILC> (derive (\x : Int . \y : Int . + x y)) 10 0 10 0
+<<closure (\x . \ (dx : Int) -> (\ (y : Int) -> (\ (dy : Int) -> (+ (+ x y) (+ dx dy)))))>>
 ```
+
 
 License
 =======

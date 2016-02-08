@@ -8,7 +8,6 @@ data Expr
   | App Expr Expr
   | Add Expr Expr
   | Lam Name Type Expr
-  | Derive Expr
   deriving (Eq, Show)
 
 data Ground

@@ -42,9 +42,6 @@ eval env expr = case expr of
     y <- eval env b
     apply x y
 
-  Derive e -> do
-    eval env (derive e)
-
 extend :: Scope -> String -> Value -> Scope
 extend env v t = Map.insert v t env
 
@@ -57,10 +54,3 @@ emptyScope = Map.empty
 
 runEval :: Expr -> Value
 runEval x = runIdentity (eval emptyScope x)
-
-derive :: Expr -> Expr
-derive (Var name) = Var ("d" ++ name)
-derive (Add x y) = Add (Add x y) (Add (derive x) (derive y))
-derive (App x y) = App (App (derive x) y) (derive y)
-derive (Lam n t e) = (Lam n t (Lam ("d" ++ n) t (derive e))) -- todo: derive type t
-derive x = x

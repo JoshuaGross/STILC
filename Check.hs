@@ -59,8 +59,6 @@ check expr = case expr of
 
   Var x -> lookupVar x
 
-  Derive e -> check e -- TODO: derive new type
-
 runCheck :: Env -> Check a -> Either TypeError a
 runCheck env = flip runReader env . runExceptT
 
