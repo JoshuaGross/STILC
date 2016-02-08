@@ -12,13 +12,14 @@ There are many theoretical problems with this implementation. For example, we're
 To compile and run:
 
 ```shell
-$ cabal run
+$ stack build && stack install
 ```
 
 Usage:
 
 ```haskell
-./ilc
+$ stilc
+
 STILC> (\x : Int . \y : Int . y) 1 2
 2
 
