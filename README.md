@@ -9,6 +9,8 @@ This is a first attempt to implement an incremental lambda-calculus based on the
 
 There are many theoretical problems with this implementation. For example, we're not using any canonical name-capturing scheme (like de Bruijn Indexes), so automatic renaming conflicts are likely.
 
+Questions: is `dx` the new value of `x` or the delta value of `x`? I'm currently treating it as the delta value.
+
 To compile and run:
 
 ```shell
@@ -36,10 +38,23 @@ STILC> (\x : Int . \y : Int . + x y)
 <<closure (\x . \ (y : Int) -> (+ x y))>>
 
 STILC> derive (\x : Int . \y : Int . + x y)
-<<closure (\x . \ (dx : Int) -> (\ (y : Int) -> (\ (dy : Int) -> (+ (+ x y) (+ dx dy)))))>>
+<<closure (\x . \ (y : Int) -> (\ (dx : Int) -> (\ (dy : Int) -> (+ (+ x y) (+ dx dy)))))>>
 
-STILC> (derive (\x : Int . \y : Int . + x y)) 10 0 10 0
-<<closure (\x . \ (dx : Int) -> (\ (y : Int) -> (\ (dy : Int) -> (+ (+ x y) (+ dx dy)))))>>
+STILC> (derive (\x : Int . x))
+<<closure (\x . \ (dx : Int) -> dx)>>
+
+STILC> (derive (\x : Int . \y : Int . + x y)) 10 10 0 0
+20
+
+STILC> (derive (\x : Int . \y : Int . + x y)) 10 10 0 1
+21
+
+STILC> (derive (\x : Int . \y : Int . + x y)) 10 10
+21
+
+STILC> (derive (\x : Int . \y : Int . + x y)) 10 10
+<<closure (\dx . \ (dy : Int) -> (+ (+ x y) (+ dx dy)))>>
+
 ```
 
 

@@ -8,6 +8,7 @@ import           Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr   as Ex
 
 import           Lexer
+import           Pretty
 import           Syntax
 
 -------------------------------------------------------------------------------
@@ -48,11 +49,28 @@ derive' (App x y) = App (App (derive' x) y) (derive' y)
 derive' (Lam n t e) = (Lam n t (Lam ("d" ++ n) t (derive' e))) -- todo: derive type t
 derive' x = x
 
+-- Lift non-derivative terms to the top of the lambda stack
+liftNonDerivativeTerms' :: Expr -> Maybe String -> [Expr] -> [Expr] -> Expr
+liftNonDerivativeTerms' x@(Lam n t e) ms ts dts =
+  case ms of
+    Just prevN | ("d" ++ prevN) == n -> liftNonDerivativeTerms' e Nothing ts (dts ++ [x])
+    _ -> liftNonDerivativeTerms' e (Just n) (ts ++ [x]) dts
+liftNonDerivativeTerms' e _ ts dts = reconstructLambdas ts dts e
+
+-- term lambdas, derivate term lambdas, final expression
+reconstructLambdas :: [Expr] -> [Expr] -> Expr -> Expr
+reconstructLambdas ((Lam n t _):ds) dts e = (Lam n t (reconstructLambdas ds dts e))
+reconstructLambdas [] ((Lam n t _):dts) e = (Lam n t (reconstructLambdas [] dts e))
+reconstructLambdas [] [] e = e
+
+liftNonDerivativeTerms :: Expr -> Expr
+liftNonDerivativeTerms e = liftNonDerivativeTerms' e Nothing [] []
+
 derive :: Parser Expr
 derive = do
   reservedOp "derive"
   e <- expr
-  return (derive' e)
+  return (liftNonDerivativeTerms $ derive' e)
 
 bool :: Parser Expr
 bool =  (reserved "True" >> return (Lit (LBool True)))
